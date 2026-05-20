@@ -1,0 +1,26 @@
+# Generic / OS
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.db
+*.sqlite3
+.pytest_cache/
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# Env / secrets — NEVER commit these
+.env
+.env.*
+!.env.example
