@@ -46,7 +46,8 @@ def client(monkeypatch):
     import app.routers.review_code as r3
     import app.routers.history as r4
     import app.routers.codebase as r5
-    for r in (r1, r2, r3, r4, r5):
+    import app.routers.route as r6
+    for r in (r1, r2, r3, r4, r5, r6):
         importlib.reload(r)
     import app.main as main_module
     importlib.reload(main_module)

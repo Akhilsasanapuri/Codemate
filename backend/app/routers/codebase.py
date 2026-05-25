@@ -6,15 +6,12 @@ from typing import List
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, Form
 from sqlmodel import Session
 
-from .. import llm
 from ..config import get_settings
 from ..db import get_session
 from ..models import Interaction
-from ..prompts import ask_codebase_prompt
 from ..schemas import (
     AskCodebaseRequest,
     AskCodebaseResponse,
-    CodebaseSource,
     ProjectOut,
 )
 from ..services import rag
@@ -55,29 +52,12 @@ def ask_codebase(req: AskCodebaseRequest, session: Session = Depends(get_session
     raw: dict | None = None
 
     try:
-        retrieved = rag.query(project_id=req.project_id, question=req.question, top_k=req.top_k)
-        if not retrieved:
-            raise HTTPException(
-                status_code=404,
-                detail=f"No indexed chunks found for project_id={req.project_id}",
+        try:
+            response_obj, raw = rag.answer_question(
+                project_id=req.project_id, question=req.question, top_k=req.top_k
             )
-
-        system, user = ask_codebase_prompt(req.question, retrieved)
-        raw = llm.chat_json(system, user, model=settings.llm_model)
-        answer = str(raw.get("answer", "")).strip()
-        used_sources = [str(s) for s in raw.get("used_sources", []) if isinstance(s, str)]
-
-        sources = [
-            CodebaseSource(
-                file_path=r["file_path"],
-                line_start=r["line_start"],
-                line_end=r["line_end"],
-                score=r["score"],
-                snippet=r["text"][:600],
-            )
-            for r in retrieved
-        ]
-        response_obj = AskCodebaseResponse(answer=answer, used_sources=used_sources, sources=sources)
+        except ValueError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
         return response_obj
     except HTTPException:
         raise

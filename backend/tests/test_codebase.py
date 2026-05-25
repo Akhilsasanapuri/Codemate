@@ -44,8 +44,6 @@ def mock_llm_ask(monkeypatch):
         }
     import app.llm as llm_module
     monkeypatch.setattr(llm_module, "chat_json", fake_chat_json)
-    import app.routers.codebase as codebase_module
-    monkeypatch.setattr(codebase_module.llm, "chat_json", fake_chat_json)
 
 
 def test_upload_and_ask_flow(client, mock_embeddings, mock_llm_ask):

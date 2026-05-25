@@ -92,4 +92,21 @@ export type AskCodebaseResponse = {
   sources: CodebaseSource[];
 };
 
-export type AgentTab = "explain" | "generate" | "review" | "codebase" | "history";
+// ---- Intent Router (Phase 4) ----
+export type RoutedTool = "explain_error" | "generate_code" | "review_code" | "ask_codebase";
+
+export type RouteRequest = {
+  text: string;
+  project_id?: number;
+};
+
+export type RouteResponse = {
+  routed_to: RoutedTool;
+  reason: string;
+  explain_error?: ExplainErrorResponse | null;
+  generate_code?: GenerateCodeResponse | null;
+  review_code?: ReviewCodeResponse | null;
+  ask_codebase?: AskCodebaseResponse | null;
+};
+
+export type AgentTab = "chat" | "explain" | "generate" | "review" | "codebase" | "history";

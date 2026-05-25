@@ -181,3 +181,38 @@ def delete_project(*, session: Session, project_id: int) -> bool:
 
 def list_projects(session: Session) -> List[Project]:
     return list(session.exec(select(Project).order_by(Project.created_at.desc())))
+
+
+# ---------------------------------------------------------------------------
+# High-level "answer a question about a project" helper.
+# Used by both the /api/codebase/ask endpoint and the Phase 4 router.
+# ---------------------------------------------------------------------------
+def answer_question(*, project_id: int, question: str, top_k: int | None = None):
+    """Retrieve top-K chunks, ask the LLM, return (AskCodebaseResponse, raw_llm_dict).
+
+    Raises ValueError if the project has no indexed chunks.
+    """
+    from .. import llm as llm_module
+    from ..config import get_settings
+    from ..prompts import ask_codebase_prompt
+    from ..schemas import AskCodebaseResponse, CodebaseSource
+
+    retrieved = query(project_id=project_id, question=question, top_k=top_k)
+    if not retrieved:
+        raise ValueError(f"No indexed chunks found for project_id={project_id}")
+
+    system, user = ask_codebase_prompt(question, retrieved)
+    raw = llm_module.chat_json(system, user, model=get_settings().llm_model)
+    answer = str(raw.get("answer", "")).strip()
+    used_sources = [str(s) for s in raw.get("used_sources", []) if isinstance(s, str)]
+    sources = [
+        CodebaseSource(
+            file_path=r["file_path"],
+            line_start=r["line_start"],
+            line_end=r["line_end"],
+            score=r["score"],
+            snippet=r["text"][:600],
+        )
+        for r in retrieved
+    ]
+    return AskCodebaseResponse(answer=answer, used_sources=used_sources, sources=sources), raw

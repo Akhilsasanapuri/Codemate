@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Activity, Cpu } from "lucide-react";
 import { Tabs } from "./components/Tabs";
+import { ChatPanel } from "./components/ChatPanel";
 import { ExplainErrorPanel } from "./components/ExplainErrorPanel";
 import { GenerateCodePanel } from "./components/GenerateCodePanel";
 import { ReviewCodePanel } from "./components/ReviewCodePanel";
@@ -10,7 +11,7 @@ import { api } from "./api";
 import type { AgentTab } from "./types";
 
 export default function App() {
-  const [tab, setTab] = useState<AgentTab>("explain");
+  const [tab, setTab] = useState<AgentTab>("chat");
   const [health, setHealth] = useState<{ model: string } | null>(null);
   const [healthy, setHealthy] = useState<boolean | null>(null);
 
@@ -49,6 +50,7 @@ export default function App() {
         <Tabs active={tab} onChange={setTab} />
 
         <div className="rounded-xl border border-zinc-900 bg-zinc-950/60 p-5 sm:p-6">
+          {tab === "chat"     && <ChatPanel />}
           {tab === "explain"  && <ExplainErrorPanel />}
           {tab === "generate" && <GenerateCodePanel />}
           {tab === "review"   && <ReviewCodePanel />}
@@ -58,7 +60,7 @@ export default function App() {
       </main>
 
       <footer className="py-4 text-center text-xs text-zinc-600">
-        CodeMate · Phase 1 backend + Phase 2 UI + Phase 3 RAG
+        CodeMate · Phases 1-4 · backend + UI + RAG + intent router
       </footer>
     </div>
   );

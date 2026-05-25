@@ -101,3 +101,24 @@ class AskCodebaseResponse(BaseModel):
     answer: str
     used_sources: List[str] = Field(default_factory=list)
     sources: List[CodebaseSource] = Field(default_factory=list)
+
+
+# ---------- Intent Router (Phase 4) ----------
+RoutedTool = Literal["explain_error", "generate_code", "review_code", "ask_codebase"]
+
+
+class RouteRequest(BaseModel):
+    text: str = Field(..., min_length=1, description="What the user typed")
+    project_id: Optional[int] = Field(
+        default=None, description="If set, ask_codebase is available as a routing target"
+    )
+
+
+class RouteResponse(BaseModel):
+    routed_to: RoutedTool
+    reason: str
+    # exactly one of these will be populated based on routed_to
+    explain_error: Optional[ExplainErrorResponse] = None
+    generate_code: Optional[GenerateCodeResponse] = None
+    review_code: Optional[ReviewCodeResponse] = None
+    ask_codebase: Optional[AskCodebaseResponse] = None

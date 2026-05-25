@@ -10,6 +10,8 @@ import type {
   Project,
   ReviewCodeRequest,
   ReviewCodeResponse,
+  RouteRequest,
+  RouteResponse,
 } from "./types";
 
 async function post<TReq, TRes>(path: string, body: TReq): Promise<TRes> {
@@ -80,4 +82,7 @@ export const api = {
   askCodebase: (req: AskCodebaseRequest) =>
     post<AskCodebaseRequest, AskCodebaseResponse>("/api/codebase/ask", req),
   deleteProject: (id: number) => del<{ deleted: number }>(`/api/codebase/projects/${id}`),
+
+  // Intent router (Phase 4)
+  route: (req: RouteRequest) => post<RouteRequest, RouteResponse>("/api/route", req),
 };
