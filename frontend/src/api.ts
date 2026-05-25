@@ -1,10 +1,13 @@
 import type {
+  AskCodebaseRequest,
+  AskCodebaseResponse,
   ExplainErrorRequest,
   ExplainErrorResponse,
   GenerateCodeRequest,
   GenerateCodeResponse,
   InteractionDetail,
   InteractionOut,
+  Project,
   ReviewCodeRequest,
   ReviewCodeResponse,
 } from "./types";
@@ -34,6 +37,26 @@ async function get<TRes>(path: string): Promise<TRes> {
   return res.json();
 }
 
+async function del<TRes>(path: string): Promise<TRes> {
+  const res = await fetch(path, { method: "DELETE" });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return res.json();
+}
+
+async function upload<TRes>(path: string, form: FormData): Promise<TRes> {
+  const res = await fetch(path, { method: "POST", body: form });
+  if (!res.ok) {
+    let detail = `${res.status} ${res.statusText}`;
+    try {
+      const data = await res.json();
+      if (typeof data.detail === "string") detail = data.detail;
+      else detail = JSON.stringify(data);
+    } catch { /* keep status text */ }
+    throw new Error(detail);
+  }
+  return res.json();
+}
+
 export const api = {
   health: () => get<{ status: string; model: string; base_url: string }>("/health"),
   explainError: (req: ExplainErrorRequest) => post<ExplainErrorRequest, ExplainErrorResponse>("/api/explain-error", req),
@@ -45,4 +68,16 @@ export const api = {
     return get<InteractionOut[]>(`/api/history?${params}`);
   },
   historyItem: (id: number) => get<InteractionDetail>(`/api/history/${id}`),
+
+  // Codebase / RAG
+  listProjects: () => get<Project[]>("/api/codebase/projects"),
+  uploadCodebase: (name: string, file: File) => {
+    const form = new FormData();
+    form.append("name", name);
+    form.append("file", file);
+    return upload<Project>("/api/codebase/upload", form);
+  },
+  askCodebase: (req: AskCodebaseRequest) =>
+    post<AskCodebaseRequest, AskCodebaseResponse>("/api/codebase/ask", req),
+  deleteProject: (id: number) => del<{ deleted: number }>(`/api/codebase/projects/${id}`),
 };

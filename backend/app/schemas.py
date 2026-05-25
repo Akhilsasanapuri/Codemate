@@ -70,3 +70,34 @@ class InteractionOut(BaseModel):
 class InteractionDetail(InteractionOut):
     request_json: str
     response_json: Optional[str]
+
+
+# ---------- Codebase / RAG ----------
+class ProjectOut(BaseModel):
+    id: int
+    name: str
+    file_count: int
+    chunk_count: int
+    total_bytes: int
+    embedding_model: str
+    created_at: datetime
+
+
+class CodebaseSource(BaseModel):
+    file_path: str
+    line_start: int
+    line_end: int
+    score: float = 0.0  # similarity score (lower = closer for L2/cosine distance)
+    snippet: str
+
+
+class AskCodebaseRequest(BaseModel):
+    project_id: int
+    question: str = Field(..., min_length=1)
+    top_k: Optional[int] = Field(default=None, ge=1, le=20)
+
+
+class AskCodebaseResponse(BaseModel):
+    answer: str
+    used_sources: List[str] = Field(default_factory=list)
+    sources: List[CodebaseSource] = Field(default_factory=list)

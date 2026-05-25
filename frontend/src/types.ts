@@ -61,4 +61,35 @@ export type InteractionDetail = InteractionOut & {
   response_json: string | null;
 };
 
-export type AgentTab = "explain" | "generate" | "review" | "history";
+// ---- Codebase (RAG) ----
+export type Project = {
+  id: number;
+  name: string;
+  file_count: number;
+  chunk_count: number;
+  total_bytes: number;
+  embedding_model: string;
+  created_at: string;
+};
+
+export type CodebaseSource = {
+  file_path: string;
+  line_start: number;
+  line_end: number;
+  score: number;
+  snippet: string;
+};
+
+export type AskCodebaseRequest = {
+  project_id: number;
+  question: string;
+  top_k?: number;
+};
+
+export type AskCodebaseResponse = {
+  answer: string;
+  used_sources: string[];
+  sources: CodebaseSource[];
+};
+
+export type AgentTab = "explain" | "generate" | "review" | "codebase" | "history";

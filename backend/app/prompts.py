@@ -70,3 +70,31 @@ def review_code_prompt(req: ReviewCodeRequest) -> tuple[str, str]:
         "version if meaningful improvements are possible."
     )
     return system, user
+
+
+# -----------------------------------------------------------------------------
+# Ask Codebase (RAG)
+# -----------------------------------------------------------------------------
+def ask_codebase_prompt(question: str, excerpts: list[dict]) -> tuple[str, str]:
+    """excerpts: [{file_path, line_start, line_end, text}, ...]"""
+    system = (
+        "You are CodeMate, an AI assistant that answers questions about a user's codebase. "
+        "You will be given a question plus a set of retrieved code/text excerpts from the project, "
+        "each tagged with its file path and line range. "
+        "Answer ONLY based on the provided excerpts; do not invent files, functions, or behavior. "
+        "If the excerpts don't contain enough information to answer, say so honestly. "
+        "Reference file paths in your answer when relevant. "
+        + _JSON_RULE
+        + " The JSON must have keys: answer (string, may use markdown), "
+        "used_sources (array of strings — file paths from the excerpts you actually used)."
+    )
+    blocks = []
+    for i, ex in enumerate(excerpts, start=1):
+        header = f"--- Excerpt {i}: {ex['file_path']} (lines {ex['line_start']}-{ex['line_end']}) ---"
+        blocks.append(f"{header}\n{ex['text']}")
+    context = "\n\n".join(blocks) if blocks else "(no excerpts retrieved)"
+    user = (
+        f"Question:\n{question}\n\n"
+        f"Retrieved excerpts from the project:\n\n{context}\n"
+    )
+    return system, user

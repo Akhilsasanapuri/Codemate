@@ -1,4 +1,4 @@
-import { Bug, FileCode2, History, Sparkles } from "lucide-react";
+import { Bug, FileCode2, FolderGit2, History, Sparkles } from "lucide-react";
 import { cn } from "../lib/cn";
 import type { AgentTab } from "../types";
 
@@ -8,6 +8,7 @@ const TABS: TabDef[] = [
   { id: "explain",  label: "Explain Error",  icon: Bug },
   { id: "generate", label: "Generate Code",  icon: Sparkles },
   { id: "review",   label: "Review Code",    icon: FileCode2 },
+  { id: "codebase", label: "Ask Codebase",   icon: FolderGit2 },
   { id: "history",  label: "History",        icon: History },
 ];
 

@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import get_settings
 from .db import init_db
-from .routers import explain_error, generate_code, history, review_code
+from .routers import codebase, explain_error, generate_code, history, review_code
 
 
 @asynccontextmanager
@@ -38,6 +38,7 @@ def create_app() -> FastAPI:
     app.include_router(explain_error.router, prefix="/api", tags=["agents"])
     app.include_router(generate_code.router, prefix="/api", tags=["agents"])
     app.include_router(review_code.router, prefix="/api", tags=["agents"])
+    app.include_router(codebase.router, prefix="/api", tags=["codebase"])
     app.include_router(history.router, prefix="/api", tags=["history"])
 
     return app

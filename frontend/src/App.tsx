@@ -4,6 +4,7 @@ import { Tabs } from "./components/Tabs";
 import { ExplainErrorPanel } from "./components/ExplainErrorPanel";
 import { GenerateCodePanel } from "./components/GenerateCodePanel";
 import { ReviewCodePanel } from "./components/ReviewCodePanel";
+import { AskCodebasePanel } from "./components/AskCodebasePanel";
 import { HistoryPanel } from "./components/HistoryPanel";
 import { api } from "./api";
 import type { AgentTab } from "./types";
@@ -51,12 +52,13 @@ export default function App() {
           {tab === "explain"  && <ExplainErrorPanel />}
           {tab === "generate" && <GenerateCodePanel />}
           {tab === "review"   && <ReviewCodePanel />}
+          {tab === "codebase" && <AskCodebasePanel />}
           {tab === "history"  && <HistoryPanel />}
         </div>
       </main>
 
       <footer className="py-4 text-center text-xs text-zinc-600">
-        CodeMate · Phase 1 backend + Phase 2 UI
+        CodeMate · Phase 1 backend + Phase 2 UI + Phase 3 RAG
       </footer>
     </div>
   );

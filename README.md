@@ -1,13 +1,13 @@
 # CodeMate
 
 An AI coding-assistant web app that helps you **explain errors**, **generate
-code**, and **review code** — built around Google Gemini (free tier) with a
-provider-agnostic design that also supports OpenAI, Groq, OpenRouter, and
-Ollama by changing 3 env vars.
+code**, **review code**, and **ask questions about your own codebase (RAG)** —
+built around Google Gemini (free tier) with a provider-agnostic design that
+also supports OpenAI, Groq, OpenRouter, and Ollama by changing 3 env vars.
 
 ```
 codemate/
-├── backend/    FastAPI + SQLite + OpenAI-compatible LLM client
+├── backend/    FastAPI + SQLite + ChromaDB + OpenAI-compatible LLM client
 └── frontend/   React 19 + Vite + Tailwind v4 + Monaco
 ```
 
@@ -130,9 +130,26 @@ Tests mock the LLM — no real API call or key needed.
 
 - ✅ **Phase 1** — FastAPI backend with 3 agents + history
 - ✅ **Phase 2** — React frontend (tabs, Monaco, dark theme)
-- ⬜ **Phase 3** — RAG over uploaded repos (Chroma + embeddings)
+- ✅ **Phase 3** — RAG: zip-upload codebases, Gemini embeddings, ChromaDB, "Ask Codebase" tab with cited sources
 - ⬜ **Phase 4** — Intent-routing agent (single chat input, auto-picks tool)
 - ⬜ **Phase 5** — Deployment (Vercel for frontend, Render/Railway for backend)
+
+---
+
+## Phase 3: Ask Codebase (RAG)
+
+Upload a `.zip` of any project, and CodeMate will:
+
+1. Walk every text file (skipping `node_modules`, `.git`, lockfiles, binaries, files > 100 KB)
+2. Split each file into ~1500-char chunks with line-range metadata
+3. Embed every chunk via Gemini's `gemini-embedding-001` (768-dim)
+4. Store vectors in a local **ChromaDB** at `./backend/chroma_db/`
+
+Then ask questions. Each answer cites the exact files + line ranges it used,
+and the **Sources** panel lets you expand each retrieved chunk with syntax
+highlighting.
+
+**Safety caps** (in `.env`): 100 KB / file · 500 files / project · 2000 chunks / project.
 
 ---
 
